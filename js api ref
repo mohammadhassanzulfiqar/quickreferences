@@ -1,0 +1,102 @@
+// app.js
+const apiUrl = 'https://localhost:5001/api/products';
+
+async function fetchProducts() {
+    try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
+        }
+        const products = await response.json();
+        displayProducts(products);
+    } catch (error) {
+        console.error('There has been a problem with your fetch operation:', error);
+    }
+}
+
+function displayProducts(products) {
+    const productList = document.getElementById('product-list');
+    productList.innerHTML = '';
+    products.forEach(product => {
+        const li = document.createElement('li');
+        li.textContent = `${product.name}: $${product.price}`;
+        li.setAttribute('data-id', product.id);
+
+        // Add update and delete buttons
+        const updateButton = document.createElement('button');
+        updateButton.textContent = 'Update';
+        updateButton.onclick = () => updateProduct(product.id);
+        li.appendChild(updateButton);
+
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.onclick = () => deleteProduct(product.id);
+        li.appendChild(deleteButton);
+
+        productList.appendChild(li);
+    });
+}
+
+async function createProduct(name, price) {
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name, price })
+        });
+        if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
+        }
+        fetchProducts();
+    } catch (error) {
+        console.error('There has been a problem with your fetch operation:', error);
+    }
+}
+
+async function updateProduct(id) {
+    const newName = prompt("Enter new name:");
+    const newPrice = prompt("Enter new price:");
+
+    try {
+        const response = await fetch(`${apiUrl}/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id, name: newName, price: parseFloat(newPrice) })
+        });
+        if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
+        }
+        fetchProducts();
+    } catch (error) {
+        console.error('There has been a problem with your fetch operation:', error);
+    }
+}
+
+async function deleteProduct(id) {
+    try {
+        const response = await fetch(`${apiUrl}/${id}`, {
+            method: 'DELETE'
+        });
+        if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
+        }
+        fetchProducts();
+    } catch (error) {
+        console.error('There has been a problem with your fetch operation:', error);
+    }
+}
+
+// Handle form submission for creating a new product
+document.getElementById('create-product-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const name = document.getElementById('product-name').value;
+    const price = parseFloat(document.getElementById('product-price').value);
+    createProduct(name, price);
+});
+
+// Fetch and display products when the page loads
+fetchProducts();
