@@ -1,0 +1,39 @@
+const myPromise = new Promise((resolve, reject) => {
+    // Simulate an asynchronous operation
+    setTimeout(() => {
+        const success = true; // change to false to simulate an error
+        if (success) {
+            resolve("The operation was successful!");
+        } else {
+            reject("The operation failed.");
+        }
+    }, 2000);
+});
+
+myPromise
+    .then((result) => {
+        console.log(result);
+        return "Next step";
+    })
+    .then((nextResult) => {
+        console.log(nextResult);
+        // More asynchronous operations can be performed here
+    })
+    .catch((error) => {
+        console.error(error);
+    });
+
+
+fetch('https://api.example.com/data')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json(); // Parse the JSON data from the response
+    })
+    .then(data => {
+        console.log(data); // Handle the data from the API
+    })
+    .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+    });
